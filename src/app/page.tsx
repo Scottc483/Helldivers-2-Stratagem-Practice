@@ -15,10 +15,20 @@ import "@fortawesome/fontawesome-svg-core/styles.css";
 
 config.autoAddCss = false;
 
+// config.autoAddCss = false;
+
 interface Stratagem {
   id: number;
   name: string;
   code: string[];
+}
+
+interface CurrentStratagem {
+  id: number;
+  name: string;
+  code: string[];
+  userInput: string[];
+  progress: boolean[];
 }
 
 export default function Home() {
@@ -147,12 +157,22 @@ export default function Home() {
     };
   }, [userInput, isGameActive]);
 
+  const gameStratagem: CurrentStratagem = {
+    id: stratagemsAll[currentStratagemIndex].id,
+    name: stratagemsAll[currentStratagemIndex].name,
+    code: stratagemsAll[currentStratagemIndex].code,
+    userInput: userInput,
+    progress: [],
+  };
+
   useEffect(() => {
     const currentStratagem = stratagemsAll[currentStratagemIndex];
 
+    console.log(`Game stratagem: `, gameStratagem);
+
     // Check if the last key pressed matches the expected key in the sequence
     const lastKey = userInput[userInput.length - 1];
-    const expectedKey = currentStratagem.code[userInput.length - 1];
+    const expectedKey = gameStratagem.code[userInput.length - 1];
 
     if (lastKey !== expectedKey) {
       console.log(`Incorrect key! Resetting input.`);
@@ -160,7 +180,13 @@ export default function Home() {
       return; // Exit the function to avoid further processing for incorrect input
     }
 
-    const isInputComplete = userInput.length === currentStratagem.code.length;
+    currentStratagem.code.forEach((_, index) => {
+      console.log(`Checking key at index ${index}`);
+      gameStratagem.progress[index] =
+        userInput[index] === currentStratagem.code[index];
+    });
+
+    const isInputComplete = userInput.length === gameStratagem.code.length;
 
     if (isInputComplete) {
       console.log(`Correct! Moving to the next stratagem.`);
@@ -192,21 +218,39 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
         <div>
-          <h1 className="text-4xl font-bold mb-8">Stratagem Generator</h1>
+          <h1 className="text-4xl font-bold mb-8">Stratagem Practice Tool</h1>
           <p className="text-2xl mb-4">
-            Current stratagem: {stratagemsAll[currentStratagemIndex].name}
+            Current stratagem: {gameStratagem.name}
           </p>
           <p className="text-2xl">
             Current code:{" "}
-            {stratagemsAll[currentStratagemIndex].code.map((key, index) => (
+            {gameStratagem.code.map((key, index) => (
+              ( console.log(`gameStratagem.progress[${index}]`, gameStratagem.progress[index]),
               <FontAwesomeIcon
+                className={`text-2xl inline-block mx-1 ${
+                  gameStratagem.progress[index]
+                    ? "text-green-400"
+                    : "text-red-400"
+                }`}
                 key={index}
                 icon={getIconForKey(key)!}
-                className="pr-2"
+              />)
+            ))}
+          </p>
+          <p className="text-2xl">
+            Current input:{" "}
+            {gameStratagem.userInput.map((key, index) => (
+              <FontAwesomeIcon
+                className="text-2xl inline-block mx-1"
+                key={index}
+                icon={getIconForKey(key)!}
               />
             ))}
           </p>
-          <p className="text-2xl">Current input: {userInput.join(" ")}</p>
+
+          <p className="text-2xl">
+            Current Object: {`${JSON.stringify(gameStratagem)}`}
+          </p>
         </div>
       </div>
     </main>
