@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import {
@@ -17,19 +17,19 @@ config.autoAddCss = false;
 
 // config.autoAddCss = false;
 
-interface Stratagem {
-  id: number;
-  name: string;
-  code: string[];
-}
+// interface Stratagem {
+//   id: number;
+//   name: string;
+//   code: string[];
+// }
 
-interface CurrentStratagem {
-  id: number;
-  name: string;
-  code: string[];
-  userInput: string[];
-  progress: boolean[];
-}
+// interface CurrentStratagem {
+//   id: number;
+//   name: string;
+//   code: string[];
+//   userInput: string[];
+//   progress: boolean[];
+// }
 
 export default function Home() {
   const stratagemsAll = [
@@ -127,132 +127,196 @@ export default function Home() {
     { id: 52, name: "Spear", code: ["s", "s", "w", "s", "s"] },
   ];
 
-  const [currentStratagemIndex, setCurrentStratagemIndex] = useState<number>(0);
-  const [userInput, setUserInput] = useState<string[]>([]);
-  const [isGameActive, setIsGameActive] = useState<boolean>(true);
+  // stratagem selection state
+  const [currentCode, setCurrentCode] = useState<string[]>([]);
+  const [currentGameIndex, setCurrentGameIndex] = useState<number>(0);
+  const [selectedCode, setSelectedCode] = useState<string | null>(null);
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const key = event.key.toLowerCase();
-      if (
-        [
-          "w",
-          "a",
-          "s",
-          "d",
-          "arrowup",
-          "arrowleft",
-          "arrowdown",
-          "arrowright",
-        ].includes(key)
-      ) {
-        setUserInput((prevInput) => [...prevInput, key]);
-      }
-    };
+  //timer
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
+  // success message
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-    window.addEventListener("keydown", handleKeyDown);
+  // stratagem selection
+  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedValue = event.target.value;
+    setSelectedCode(selectedValue === "none" ? null : selectedValue);
 
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [userInput, isGameActive]);
-
-  const gameStratagem: CurrentStratagem = {
-    id: stratagemsAll[currentStratagemIndex].id,
-    name: stratagemsAll[currentStratagemIndex].name,
-    code: stratagemsAll[currentStratagemIndex].code,
-    userInput: userInput,
-    progress: [],
+    // Reset current code and start from the beginning when a new code is selected
+    setCurrentCode([]);
+    // Set the current game index based on the selected code
+    setCurrentGameIndex(
+      selectedValue === null ? 0 : parseInt(selectedValue, 10) - 1
+    );
   };
 
+  // keyboard input
+  const handleKeyPress = useCallback(
+    (event: KeyboardEvent) => {
+      const keyMap: Record<string, string> = {
+        ArrowUp: "w",
+        ArrowLeft: "a",
+        ArrowDown: "s",
+        ArrowRight: "d",
+      };
+
+      const keyPressed = keyMap[event.key] || event.key.toLowerCase();
+      event.preventDefault();
+
+      if (["w", "a", "s", "d"].includes(keyPressed)) {
+        if (
+          keyPressed ===
+          stratagemsAll[currentGameIndex].code[currentCode.length]
+        ) {
+          setCurrentCode((prevCode) => [...prevCode, keyPressed]);
+          if (startTime === null) {
+            // Start the stopwatch on the first correct input
+            setStartTime(Date.now());
+          }
+
+          if (
+            currentCode.length ===
+            stratagemsAll[currentGameIndex].code.length - 1
+          ) {
+            // Move to the next code if the current one is completed
+            // setCurrentGameIndex((prevIndex) => prevIndex + 1);
+            setStartTime(null); // Reset the stopwatch
+            setCurrentCode([]);
+
+            // Display success message
+            const message = `Tactical stratagem recieved ${stratagemsAll[currentGameIndex].name} enroute clear the area! Time: ${formattedTime}`;
+            setSuccessMessage(message);
+
+            // Clear success message after a few seconds
+            setTimeout(() => {
+              setSuccessMessage(null);
+            }, 9000);
+          }
+        } else {
+          // Reset if the user makes a mistake
+          setCurrentCode([]);
+          setStartTime(null); // Reset the stopwatch
+        }
+      }
+    },
+    [currentCode, currentGameIndex]
+  );
+
   useEffect(() => {
-    const currentStratagem = stratagemsAll[currentStratagemIndex];
+    // Update elapsed time every 100 milliseconds
+    const intervalId = setInterval(() => {
+      if (startTime !== null) {
+        setElapsedTime(Date.now() - startTime);
+      }
+    }, 100);
 
-    console.log(`Game stratagem: `, gameStratagem);
+    // Clear the interval on component unmount
+    return () => clearInterval(intervalId);
+  }, [startTime]);
 
-    // Check if the last key pressed matches the expected key in the sequence
-    const lastKey = userInput[userInput.length - 1];
-    const expectedKey = gameStratagem.code[userInput.length - 1];
+  const formatTimeComponent = (value: number) =>
+    value.toString().padStart(2, "0");
 
-    if (lastKey !== expectedKey) {
-      console.log(`Incorrect key! Resetting input.`);
-      setUserInput([]); // Reset user input for the current stratagem
-      return; // Exit the function to avoid further processing for incorrect input
+  const minutes = formatTimeComponent(Math.floor(elapsedTime / 60000));
+  const seconds = formatTimeComponent(Math.floor((elapsedTime % 60000) / 1000));
+  const milliseconds = elapsedTime % 1000;
+  const formattedTime = `${minutes}:${seconds}.${milliseconds
+    .toString()
+    .padStart(3, "0")}`;
+
+  useEffect(() => {
+    // Add event listener when component mounts
+    window.addEventListener("keydown", handleKeyPress);
+
+    // Remove event listener when component unmounts
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [handleKeyPress]);
+
+  // Icon color
+  const getIconColor = (key: string, index: number) => {
+    if (currentCode[index] === key) {
+      return "green";
     }
+    return "black";
+  };
 
-    currentStratagem.code.forEach((_, index) => {
-      console.log(`Checking key at index ${index}`);
-      gameStratagem.progress[index] =
-        userInput[index] === currentStratagem.code[index];
-    });
-
-    const isInputComplete = userInput.length === gameStratagem.code.length;
-
-    if (isInputComplete) {
-      console.log(`Correct! Moving to the next stratagem.`);
-      setCurrentStratagemIndex((prevIndex) => prevIndex + 1);
-      setUserInput([]); // Reset user input for the next stratagem
-    }
-  }, [userInput, currentStratagemIndex, stratagemsAll]);
-
+  // Icon selection
   const getIconForKey = (key: string) => {
     switch (key) {
       case "w":
-      case "arrowup":
         return faArrowUp;
-      case "a":
-      case "arrowleft":
-        return faArrowLeft;
       case "s":
-      case "arrowdown":
         return faArrowDown;
+      case "a":
+        return faArrowLeft;
       case "d":
-      case "arrowright":
         return faArrowRight;
       default:
-        return null; // You may want to handle other keys as needed
+        return null;
     }
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <div>
-          <h1 className="text-4xl font-bold mb-8">Stratagem Practice Tool</h1>
-          <p className="text-2xl mb-4">
-            Current stratagem: {gameStratagem.name}
-          </p>
-          <p className="text-2xl">
-            Current code:{" "}
-            {gameStratagem.code.map((key, index) => (
-              ( console.log(`gameStratagem.progress[${index}]`, gameStratagem.progress[index]),
-              <FontAwesomeIcon
-                className={`text-2xl inline-block mx-1 ${
-                  gameStratagem.progress[index]
-                    ? "text-green-400"
-                    : "text-red-400"
-                }`}
-                key={index}
-                icon={getIconForKey(key)!}
-              />)
-            ))}
-          </p>
-          <p className="text-2xl">
-            Current input:{" "}
-            {gameStratagem.userInput.map((key, index) => (
-              <FontAwesomeIcon
-                className="text-2xl inline-block mx-1"
-                key={index}
-                icon={getIconForKey(key)!}
-              />
-            ))}
-          </p>
-
-          <p className="text-2xl">
-            Current Object: {`${JSON.stringify(gameStratagem)}`}
-          </p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white p-8 rounded-md shadow-md">
+      <div className="w-full max-w-lg">
+        <h1 className="text-3xl font-bold mb-4">Stratagem Practice Tool</h1>
+        <div className="mb-4">
+          {/* <label
+            htmlFor="codeSelect"
+            className="block text-sm font-medium mb-2"
+          >
+            Select a code to practice:
+          </label> */}
+          <select
+            id="codeSelect"
+            onChange={handleSelectChange}
+            value={selectedCode || "none"}
+            className="w-full p-2 bg-gray-700 text-white rounded-md focus:outline-none focus:ring focus:border-blue-300 text-2xl font-bold mb-4"
+          >
+            <option value="none" className="text-gray-500 text-2xl font-bold mb-4">
+              Select Code
+            </option>
+            {stratagemsAll
+              .slice()
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((stratagem) => (
+                <option
+                  id="stratagemSelect"
+                  key={stratagem.id}
+                  value={stratagem.id.toString()}
+                  className="text-white text-2xl font-bold mb-4"
+                >
+                  {stratagem.name}
+                </option>
+              ))}
+          </select>
+         
         </div>
+        {selectedCode !== null && (
+          <>
+            {/* <h1 className="text-2xl font-bold mb-4">
+              {stratagemsAll[currentGameIndex].name}
+            </h1> */}
+            <div className="flex items-center mb-4">
+              {stratagemsAll[currentGameIndex].code.map((key, index) => (
+                <FontAwesomeIcon
+                  key={index}
+                  icon={getIconForKey(key)!}
+                  style={{
+                    color: getIconColor(key, index),
+                    fontSize: "2rem",
+                    marginRight: "0.5rem",
+                  }}
+                />
+              ))}
+              {successMessage && (
+                <p className="ml-4 text-green-500">{successMessage}</p>
+              )}
+            </div>
+          </>
+        )}
       </div>
-    </main>
+    </div>
   );
 }
