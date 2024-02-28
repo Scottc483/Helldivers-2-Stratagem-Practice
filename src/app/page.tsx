@@ -1,112 +1,213 @@
+"use client";
+
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+import {
+  faArrowUp,
+  faArrowDown,
+  faArrowLeft,
+  faArrowRight,
+} from "@fortawesome/free-solid-svg-icons";
+import { config } from "@fortawesome/fontawesome-svg-core";
+import "@fortawesome/fontawesome-svg-core/styles.css";
+
+config.autoAddCss = false;
+
+interface Stratagem {
+  id: number;
+  name: string;
+  code: string[];
+}
 
 export default function Home() {
+  const stratagemsAll = [
+    { id: 1, name: "Eagle Strafing Run", code: ["w", "d", "d"] },
+    { id: 2, name: "Eagle Airstrike", code: ["w", "d", "s", "d"] },
+    { id: 3, name: "Eagle Cluster Bomb", code: ["w", "d", "s", "s", "d", "s"] },
+    { id: 4, name: "Eagle Napalm Airstrike", code: ["w", "d", "s", "w"] },
+    { id: 5, name: "Jump Pack", code: ["s", "w", "w", "s", "w"] },
+    { id: 6, name: "Eagle Smoke Strike", code: ["w", "d", "w", "s"] },
+    { id: 7, name: "Eagle 110MM Rocket Pods", code: ["w", "s", "w", "a"] },
+    { id: 8, name: "Eagle 500KG Bomb", code: ["w", "a", "s", "s", "s"] },
+    { id: 9, name: "Orbital Precision Strikes", code: ["d", "d", "w"] },
+    { id: 10, name: "Orbital Gas Strike", code: ["d", "d", "s", "d"] },
+    { id: 11, name: "Orbital EMS Strike", code: ["d", "d", "a", "s"] },
+    { id: 12, name: "Orbital Smoke Strike", code: ["d", "d", "s", "w"] },
+    { id: 13, name: "HMG Emplacement", code: ["w", "s", "a", "d", "d", "a"] },
+    {
+      id: 14,
+      name: "Shield Generator Relay",
+      code: ["s", "w", "a", "d", "a", "s"],
+    },
+    { id: 15, name: "Tesla Tower", code: ["s", "w", "d", "w", "a", "d"] },
+    { id: 16, name: "Gatling Barrage", code: ["d", "s", "a", "w", "w"] },
+    { id: 17, name: "Airburst Strike", code: ["d", "d", "d"] },
+    {
+      id: 18,
+      name: "120MM HE Barrage",
+      code: ["d", "s", "s", "a", "s", "d", "s", "s"],
+    },
+    {
+      id: 19,
+      name: "380MM HE Barrage",
+      code: ["d", "s", "s", "w", "w", "a", "s", "s", "s"],
+    },
+    { id: 20, name: "Walking Barrage", code: ["d", "s", "d", "s", "d", "s"] },
+    { id: 21, name: "Laser Strike", code: ["d", "w", "a", "w", "d", "a"] },
+    { id: 22, name: "Railcannon Strike", code: ["d", "s", "w", "s", "a"] },
+    {
+      id: 23,
+      name: "Anti-Personnel Minefield",
+      code: ["s", "a", "s", "w", "d"],
+    },
+    { id: 24, name: "Supply Pack", code: ["s", "a", "s", "w", "w", "s"] },
+    {
+      id: 25,
+      name: "Grenade Launcher",
+      code: ["s", "a", "s", "w", "a", "s", "s"],
+    },
+    { id: 26, name: "Laser Cannon", code: ["s", "a", "s", "w", "a"] },
+    { id: 27, name: "Incendiary Mines", code: ["s", "a", "a", "s"] },
+    { id: 28, name: "Guard Dog Rover", code: ["s", "a", "s", "w", "a", "s"] },
+    {
+      id: 29,
+      name: "Ballistic Shield Backpack",
+      code: ["s", "a", "w", "w", "d"],
+    },
+    { id: 30, name: "Arc Thrower", code: ["s", "d", "w", "a", "s"] },
+    {
+      id: 31,
+      name: "Shield Generator Pack",
+      code: ["s", "w", "a", "s", "d", "d"],
+    },
+    { id: 32, name: "Machine Gun Sentry", code: ["s", "w", "d", "d", "w"] },
+    { id: 33, name: "Gatling Sentry", code: ["s", "w", "d", "a", "s"] },
+    { id: 34, name: "Mortar Sentry", code: ["s", "w", "d", "d", "s"] },
+    { id: 35, name: "Guard Dog", code: ["s", "w", "a", "w", "d", "s"] },
+    { id: 36, name: "Autocannon Sentry", code: ["s", "w", "d", "w", "a", "w"] },
+    { id: 37, name: "Rocket Sentry", code: ["s", "w", "d", "d", "a"] },
+    { id: 38, name: "EMS Mortar Sentry", code: ["s", "s", "a", "a", "w"] },
+    { id: 39, name: "Reinforce", code: ["w", "s", "d", "a", "w"] },
+    { id: 40, name: "SOS Beacon", code: ["w", "s", "d", "w"] },
+    { id: 41, name: "Super Earth Flag", code: ["s", "w", "s", "w"] },
+    { id: 42, name: "Upload Data", code: ["a", "d", "w", "w", "w"] },
+    {
+      id: 43,
+      name: "Hellbomb",
+      code: ["s", "w", "a", "s", "w", "d", "s", "w"],
+    },
+    { id: 44, name: "Machine Gun", code: ["s", "a", "s", "w", "d"] },
+    { id: 45, name: "Anti-Material Rifle", code: ["s", "a", "d", "w", "s"] },
+    { id: 46, name: "Stalwart", code: ["s", "a", "s", "w", "w", "a"] },
+    { id: 47, name: "Expendable Anti-Tank", code: ["s", "s", "a", "w", "d"] },
+    { id: 48, name: "Recoilless Rifle", code: ["s", "a", "d", "d", "a"] },
+    { id: 49, name: "Flamethrower", code: ["s", "a", "w", "s", "w"] },
+    {
+      id: 50,
+      name: "Autocannon",
+      code: ["s", "d", "a", "s", "s", "w", "w", "d"],
+    },
+    {
+      id: 51,
+      name: "Railgun",
+      code: ["s", "d", "a", "s", "s", "w", "a", "s", "d"],
+    },
+    { id: 52, name: "Spear", code: ["s", "s", "w", "s", "s"] },
+  ];
+
+  const [currentStratagemIndex, setCurrentStratagemIndex] = useState<number>(0);
+  const [userInput, setUserInput] = useState<string[]>([]);
+  const [isGameActive, setIsGameActive] = useState<boolean>(true);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+      if (
+        [
+          "w",
+          "a",
+          "s",
+          "d",
+          "arrowup",
+          "arrowleft",
+          "arrowdown",
+          "arrowright",
+        ].includes(key)
+      ) {
+        setUserInput((prevInput) => [...prevInput, key]);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [userInput, isGameActive]);
+
+  useEffect(() => {
+    const currentStratagem = stratagemsAll[currentStratagemIndex];
+
+    // Check if the last key pressed matches the expected key in the sequence
+    const lastKey = userInput[userInput.length - 1];
+    const expectedKey = currentStratagem.code[userInput.length - 1];
+
+    if (lastKey !== expectedKey) {
+      console.log(`Incorrect key! Resetting input.`);
+      setUserInput([]); // Reset user input for the current stratagem
+      return; // Exit the function to avoid further processing for incorrect input
+    }
+
+    const isInputComplete = userInput.length === currentStratagem.code.length;
+
+    if (isInputComplete) {
+      console.log(`Correct! Moving to the next stratagem.`);
+      setCurrentStratagemIndex((prevIndex) => prevIndex + 1);
+      setUserInput([]); // Reset user input for the next stratagem
+    }
+  }, [userInput, currentStratagemIndex, stratagemsAll]);
+
+  const getIconForKey = (key: string) => {
+    switch (key) {
+      case "w":
+      case "arrowup":
+        return faArrowUp;
+      case "a":
+      case "arrowleft":
+        return faArrowLeft;
+      case "s":
+      case "arrowdown":
+        return faArrowDown;
+      case "d":
+      case "arrowright":
+        return faArrowRight;
+      default:
+        return null; // You may want to handle other keys as needed
+    }
+  };
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+        <div>
+          <h1 className="text-4xl font-bold mb-8">Stratagem Generator</h1>
+          <p className="text-2xl mb-4">
+            Current stratagem: {stratagemsAll[currentStratagemIndex].name}
+          </p>
+          <p className="text-2xl">
+            Current code:{" "}
+            {stratagemsAll[currentStratagemIndex].code.map((key, index) => (
+              <FontAwesomeIcon
+                key={index}
+                icon={getIconForKey(key)!}
+                className="pr-2"
+              />
+            ))}
+          </p>
+          <p className="text-2xl">Current input: {userInput.join(" ")}</p>
         </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
       </div>
     </main>
   );
