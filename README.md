@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Stratagem Game
+
+## Overview
+
+Stratagem Game is a futuristic military shooter-inspired web game where players practice entering specific codes corresponding to different stratagems. The game helps improve player reflexes and memory of in-game commands.
+
+## Features
+
+- **Code Practice:** Practice entering specific codes for different in-game stratagems.
+- **Stopwatch:** Track the time it takes to complete a code accurately.
+- **Success Message:** Display a success message upon completing a code.
+- **Dropdown Selection:** Select a specific stratagem to practice from a dropdown menu.
+- **Random Stratagem:** Optionally add a feature to practice a randomly selected stratagem.
+- **Sounds:** Add sounds to enhance the gaming experience.
+- **History Feature:** Keep a history of completed codes and their completion times.
+- **Score Keeper:** Implement a scoring system based on completion times.
 
 ## Getting Started
 
-First, run the development server:
+1. **Clone the Repository:**
+   ```bash
+   git clone <repository-url>
+   cd stratagem-game
+# Install Dependencies:
 
-```bash
+npm install
+Run the Development Server:
+bash
+Copy code
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+The game will be accessible at http://localhost:3000.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Technologies Used
+React
+Next.js
+FontAwesome
+Tailwind CSS
+Usage
+Select a code from the dropdown menu.
+Practice entering the displayed code using the corresponding keys.
+The stopwatch will start on the first correct input and stop upon completing the code.
+View the completion time and success message.
+Optionally enable sound effects for a more immersive experience.
+Contributing
+If you'd like to contribute, please fork the repository and create a pull request. Issues and feature requests are also welcome.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+License
+This project is licensed under the MIT License - see the LICENSE file for details.
