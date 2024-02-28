@@ -21,13 +21,16 @@ Stratagem Game is a futuristic military shooter-inspired web game where players 
    ```bash
    git clone <repository-url>
    cd stratagem-game
-# Install Dependencies:
+   ```
+2. **Clone the Repository:**
+   ```bash
+   npm install
+   ```
 
-npm install
-Run the Development Server:
-bash
-Copy code
-npm run dev
+3. **Run the Development Server:**
+    ```bash
+   npm run dev
+   ```
 The game will be accessible at http://localhost:3000.
 
 Technologies Used
@@ -35,7 +38,10 @@ React
 Next.js
 FontAwesome
 Tailwind CSS
-Usage
+
+
+#Usage
+
 Select a code from the dropdown menu.
 Practice entering the displayed code using the corresponding keys.
 The stopwatch will start on the first correct input and stop upon completing the code.
@@ -44,5 +50,5 @@ Optionally enable sound effects for a more immersive experience.
 Contributing
 If you'd like to contribute, please fork the repository and create a pull request. Issues and feature requests are also welcome.
 
-License
+#License
 This project is licensed under the MIT License - see the LICENSE file for details.
