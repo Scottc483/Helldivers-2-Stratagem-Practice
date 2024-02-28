@@ -22,7 +22,7 @@ Stratagem Game is a futuristic military shooter-inspired web game where players 
    git clone <repository-url>
    cd stratagem-game
    ```
-2. **Clone the Repository:**
+2. **Install Dependencies:**
    ```bash
    npm install
    ```
