@@ -238,7 +238,7 @@ export default function Home() {
     if (currentCode[index] === key) {
       return "green";
     }
-    return "black";
+    return "white";
   };
 
   // Icon selection
